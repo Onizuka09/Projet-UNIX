@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/tcp_serv.dir/logger.c.o CMakeFiles/tcp_serv.dir/services.c.o CMakeFiles/tcp_serv.dir/network.c.o CMakeFiles/tcp_serv.dir/tcp_ser.c.o -o tcp_serv 

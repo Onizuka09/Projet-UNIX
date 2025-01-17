@@ -1,0 +1,3 @@
+/home/moktar/c_programs/projet_unix/tcp_mono/build/CMakeFiles/tcp_serv.dir
+/home/moktar/c_programs/projet_unix/tcp_mono/build/CMakeFiles/edit_cache.dir
+/home/moktar/c_programs/projet_unix/tcp_mono/build/CMakeFiles/rebuild_cache.dir
