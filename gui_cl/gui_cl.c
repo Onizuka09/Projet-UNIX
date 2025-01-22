@@ -11,9 +11,9 @@ int main()
     Gooey_Init(GLFW);
 
     win = GooeyWindow_Create("GUI client", 600, 900, 1);
-    Create_authentification_layout();
+    // Create_authentification_layout();
     
-    //  create_services_layout();
+     create_services_layout();
 
     GooeyWindow_Run(1, &win);
 
