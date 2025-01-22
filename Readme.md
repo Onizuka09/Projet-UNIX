@@ -23,3 +23,7 @@ gcc tcp_clnt.c services.c network.c -g  -o clnt
 
 ```
 
+## GUI 
+```bash 
+gcc gui_cl.c ui.c -o gui_cl -I./GooeyGUI/include/ -I./GooeyGUI/internal/ -L./GooeyGUI/lib/ -lGooeyGUI -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -g3 -fsanitize=address 
+```
