@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.h": "c",
+        "ser1.C": "cpp"
+    }
+}

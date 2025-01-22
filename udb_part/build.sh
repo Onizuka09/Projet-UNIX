@@ -1,16 +1,45 @@
 #!/bin/bash
 
-
 echo "Building ... "
 
-options=$( getopt -l "server,client,help" -o "SerClh" -a -- $@ )
-eval set -- $options
+# Use getopt to handle options
+options=$(getopt -o "SClh" -l "server,client,help" -n "$0" -- "$@")
+
+# Check if getopt successfully parsed the arguments
+if [ $? != 0 ]; then
+    echo "Error in command line parsing. Exiting..."
+    exit 1
+fi
+
+eval set -- "$options"
+
 while true; do
-	case "$1" in
-		-ser|--server) echo "Building Server program $2" ; shift 2 ;;
-		-cl|--client) eco "building Client program "; shift ;;
-		--) shift; break ;; # the end of the options to be parsed
-		*) echo "error invalid argument $1"; exit 0;;
-	esac
+  case "$1" in
+    -S|--server)
+      echo "Building Server program"
+      gcc udp_serv.c logger.c -o serv  # Replace with your actual server source file
+      shift
+      ;;
+    -C|--client)
+      echo "Building Client program"
+      gcc udp_clnt.c logger.c -o clnt # Replace with your actual client source file
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: $0 --server|--client"
+      echo "--server: Build the server program"
+      echo "--client: Build the client program"
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "error invalid argument $1"
+      exit 1
+      ;;
+  esac
 done
 
+echo "Build completed."
