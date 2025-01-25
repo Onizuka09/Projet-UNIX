@@ -10,24 +10,13 @@
 #include "logger.h"
 #include "common.h"
 #include "network.h"
-char buff[1024];
-char buff2[2048];
 
-// double stime = 0, etime = 0 ;
-// // initialisation
-// ListDirectories("/home/moktar/c_programs/projet_unix/udb_part", buff, sizeof(buff));
-// getFileContent("/home/moktar/c_programs/projet_unix/udb_part/common.h", buff2, sizeof(buff2));
-// getElapsedTime(true, NULL);
-// usleep(2500000); // sleep for 2.5s
-// getElapsedTime(false,&etime );
-
-// printf("%f elapse time \n", etime);
-// printf("%s \n", buff);
-// printf("%s \n", buff2);
 #define Authentication_success "1"
+
 int ntrial = 0;
 Message messageSend_t = {0};
 Message messageRcv_t = {0};
+
 int main()
 {
   int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -91,10 +80,11 @@ int main()
     }
     ntrial++;
   } while (ntrial < 3); // Infinite loop until successful authentication
-  if ( ntrial >= 3 ){ 
-      LOG_ERROR("Excceeded MAX Trails 3, Exiting ..."); 
-      close (sock); 
-      exit(EXIT_FAILURE);
+  if (ntrial >= 3)
+  {
+    LOG_ERROR("Excceeded MAX Trails 3, Exiting ...");
+    close(sock);
+    exit(EXIT_FAILURE);
   }
   LOG_INFO("Authentication Success ");
   int selection = 0;
@@ -107,7 +97,7 @@ int main()
       printf("%s\n", messageRcv_t.payload.ackPayload.msgACK);
       printf("$ select a choice: ");
       scanf("%d", &selection);
-      printf("you have selected choise %d : %d \n", selection , (Services_e)selection);
+      printf("you have selected choise %d : %d \n", selection, (Services_e)selection);
       switch ((Services_e)selection)
       {
       case LISTS_DIR:
@@ -123,22 +113,21 @@ int main()
         safe_send(sock, -1, &messageSend_t);
         // get output
         printf("$ Output: \n");
-        
+
         safe_rcv(sock, -1, &messageRcv_t);
         if (messageRcv_t.serviceType == LISTS_DIR)
         {
           printf("%s \n", messageRcv_t.payload.listCatPayload.output);
           printf("PATH %s \n", messageRcv_t.payload.listCatPayload.directory_path);
-        
         }
         break;
-        case DATE_TIME:
+      case DATE_TIME:
         /* code */
         LOG_INFO("getting Date Time  ");
-        messageSend_t.serviceType =DATE_TIME;
-      
+        messageSend_t.serviceType = DATE_TIME;
+
         TimeDatePayload td;
-        messageSend_t.payload.timeDatePayload=td;
+        messageSend_t.payload.timeDatePayload = td;
         safe_send(sock, -1, &messageSend_t);
         // get output
         printf("$ Output: \n");
@@ -147,7 +136,6 @@ int main()
         {
           printf("\tDATE:  %s \n", messageRcv_t.payload.timeDatePayload.time);
           printf("\tTIME:  %s \n", messageRcv_t.payload.timeDatePayload.date);
-        
         }
         break;
 
@@ -170,7 +158,6 @@ int main()
         {
           printf("PATH %s \n", messageRcv_t.payload.listCatPayload.directory_path);
           printf("%s \n", messageRcv_t.payload.listCatPayload.output);
-          
         }
         break;
 

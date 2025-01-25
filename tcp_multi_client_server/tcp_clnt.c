@@ -11,27 +11,17 @@
 #include "common.h"
 #include "network.h"
 #include <signal.h>
-char buff[1024];
-char buff2[2048];
 
-// double stime = 0, etime = 0 ;
-// // initialisation
-// ListDirectories("/home/moktar/c_programs/projet_unix/udb_part", buff, sizeof(buff));
-// getFileContent("/home/moktar/c_programs/projet_unix/udb_part/common.h", buff2, sizeof(buff2));
-// getElapsedTime(true, NULL);
-// usleep(2500000); // sleep for 2.5s
-// getElapsedTime(false,&etime );
-
-// printf("%f elapse time \n", etime);
-// printf("%s \n", buff);
-// printf("%s \n", buff2);
-void handle_interrupt(int sig);
 #define Authentication_success "1"
+
 int ntrial = 0;
 int id = 0;
 Message messageSend_t = {0};
 Message messageRcv_t = {0};
 int sock = 0;
+
+void handle_interrupt(int sig);
+
 int main()
 {
   signal(SIGINT, handle_interrupt);

@@ -13,30 +13,36 @@
 #include <signal.h>
 #include <Gooey/gooey.h>
 #include "ui.h"
-#include <pthread.h>  // For threading support
-extern GooeyWindow win;
-extern bool status_Auth_btn;
-GooeySignal signal1;
-void handle_interrupt(int sig);
+#include <pthread.h> // For threading support
+
 #define Authentication_success "1"
+
+extern bool status_Auth_btn;
+
+extern GooeyWindow Authwin;
+extern GooeyWindow SerWin;
+GooeySignal signal1, guiUpdateSignal;
+
 int ntrial;
 ntrial = 0;
 int id = 0;
+int sock = 0;
+
 Message messageSend_t = {0};
 Message messageRcv_t = {0};
-int sock = 0;
-bool auth_succ = false ;
-bool window_cleard = false ;
+
+void handle_interrupt(int sig);
+
+
 void signal_callback(void *context, void *data)
 {
-    LOG_INFO("Recieved signal %s %s", (char *)context, (char *)data);
-     auth_succ = true;
-  window_cleard = true ;
-  //   clear_window();
-  // create_services_layout();
+  LOG_INFO("Recieved signal, Executing the signal handlers");
 
+  GooeyWindow_MakeVisible(&Authwin, false);
+  GooeyWindow_MakeVisible(&SerWin, true);
 }
-void* client_network_thread(void* arg);
+void *client_network_thread(void *arg);
+
 int main()
 {
   signal(SIGINT, handle_interrupt);
@@ -45,30 +51,24 @@ int main()
 
   // Start the GUI in the main thread
   Gooey_Init(GLFW);
-  win = GooeyWindow_Create("GUI client", 600, 900, 1);
-  signal1 = GooeySignal_Create();
-   GooeySignal_Link(&signal1, signal_callback, "hello");
-  if (window_cleard && auth_succ == true ){ 
-    clear_window();
-    window_cleard = false ; 
-
-  }
-  if ( auth_succ){ 
-  create_services_layout();
-  }else { 
+  Authwin = GooeyWindow_Create("GUI client", 600, 900, true);
   Create_authentification_layout();
-  }
-  GooeyWindow_Run(1, &win);
+  SerWin = GooeyWindow_CreateChild("GUI client", 600, 900, false);
+  create_services_layout();
+  signal1 = GooeySignal_Create();
+  GooeySignal_Link(&signal1, signal_callback, NULL);
+  GooeySignal guiUpdateSignal = GooeySignal_Create();
+
+  pthread_join(net_thread, NULL);
+  GooeyWindow_Run(2, &Authwin, &SerWin);
 
   // Wait for the network thread to finish (if necessary)
-  pthread_join(net_thread, NULL);
 
-  GooeyWindow_Cleanup(1, &win);
+  GooeyWindow_Cleanup(2, &Authwin, &SerWin);
   return 0;
-
 }
 
-void* client_network_thread(void* arg)
+void *client_network_thread(void *arg)
 {
 
   // GooeyWindow_Cleanup(1, &win);
@@ -143,9 +143,8 @@ void* client_network_thread(void* arg)
     close(sock);
     exit(EXIT_FAILURE);
   }
- 
-  
-GooeySignal_Emit(&signal1, "world");  
+
+  GooeySignal_Emit(&signal1, "world");
 
   LOG_INFO("Authentication Success ");
   int selection = 0;
@@ -158,7 +157,7 @@ GooeySignal_Emit(&signal1, "world");
       id = messageRcv_t.id;
       set_ConnectionStatus(true);
 
-      setUserID(id); 
+      setUserID(id);
       printf("My ID <%d>\n%s\n", id, messageRcv_t.payload.ackPayload.msgACK);
       printf("$ select a choice: ");
       scanf("%d", &selection);
@@ -268,7 +267,7 @@ GooeySignal_Emit(&signal1, "world");
 
   LOG_INFO("DONE .... ");
   close(sock);
-    return NULL;
+  return NULL;
 }
 void handle_interrupt(int sig)
 {
@@ -276,6 +275,7 @@ void handle_interrupt(int sig)
   // join all active threads
   messageSend_t.serviceType = END;
   safe_send(sock, -1, &messageSend_t);
+  GooeyWindow_Cleanup(2, &Authwin, &SerWin);
 
   LOG_INFO("Closing client socket socket...");
   close(sock);
